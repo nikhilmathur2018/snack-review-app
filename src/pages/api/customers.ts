@@ -13,8 +13,8 @@ export default async function handler(
       const customer = new Customer(req.body);
       await customer.save();
       res.status(201).json({ message: "Review created" });
-    } catch (_) {
-      // Ignore unused error with _
+    } catch (error) {
+      // eslint-disable-next-line no-unused-vars
       res.status(400).json({ error: "Failed to create review" });
     }
   } else {
