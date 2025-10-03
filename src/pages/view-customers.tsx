@@ -1,10 +1,24 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
+import type { GetServerSidePropsContext } from "next";
 import connectDB from "@/lib/mongoose";
 import Customer from "@/models/Customer";
 import Layout from "@/components/Layout";
 
-export default function ViewCustomers({ customers }: { customers: any[] }) {
+interface CustomerView {
+  _id: string;
+  name: string;
+  email: string;
+  rating: number;
+  review: string;
+  createdAt: Date;
+}
+
+interface CustomerProps {
+  customers: CustomerView[];
+}
+
+export default function ViewCustomers({ customers }: CustomerProps) {
   return (
     <Layout>
       <div className="space-y-6">
@@ -63,7 +77,7 @@ export default function ViewCustomers({ customers }: { customers: any[] }) {
   );
 }
 
-export async function getServerSideProps(context: any) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const session = await getServerSession(context.req, context.res, authOptions);
   if (!session) {
     return { redirect: { destination: "/login", permanent: false } };
