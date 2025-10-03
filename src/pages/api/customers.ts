@@ -14,6 +14,7 @@ export default async function handler(
       await customer.save();
       res.status(201).json({ message: "Review created" });
     } catch (_) {
+      // Ignore unused error with _
       res.status(400).json({ error: "Failed to create review" });
     }
   } else {
