@@ -20,7 +20,7 @@ if (!MONGODB_URI) {
 }
 
 // Safe global cache with type-safe access
-let cached: Cached = global.mongoose ?? { conn: null, promise: null };
+const cached: Cached = global.mongoose ?? { conn: null, promise: null };
 
 if (!global.mongoose) {
   global.mongoose = cached;

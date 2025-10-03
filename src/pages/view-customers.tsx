@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
+import { Session } from "next-auth";
 import connectDB from "@/lib/mongoose";
 import Customer from "@/models/Customer";
 import Layout from "@/components/Layout";
@@ -64,7 +65,11 @@ export default function ViewCustomers({ customers }: { customers: any[] }) {
 }
 
 export async function getServerSideProps(context: any) {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  const session: Session | null = await getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
   if (!session) {
     return { redirect: { destination: "/login", permanent: false } };
   }

@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]"; // Named import now works
+import { authOptions } from "./api/auth/[...nextauth]";
+import { Session } from "next-auth";
 import connectDB from "@/lib/mongoose";
 import Customer from "@/models/Customer";
 import Layout from "@/components/Layout";
@@ -7,11 +8,9 @@ import Layout from "@/components/Layout";
 export default function Dashboard({
   totalReviews,
   avgRating,
-  recentReviews,
 }: {
   totalReviews: number;
   avgRating: number;
-  recentReviews: number;
 }) {
   return (
     <Layout>
@@ -34,14 +33,6 @@ export default function Dashboard({
               {avgRating.toFixed(1)} / 5
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Recent Reviews (Last Month)
-            </h2>
-            <p className="text-3xl font-bold text-snack-primary">
-              {recentReviews}
-            </p>
-          </div>
         </div>
       </div>
     </Layout>
@@ -49,7 +40,11 @@ export default function Dashboard({
 }
 
 export async function getServerSideProps(context: any) {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  const session: Session | null = await getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
   if (!session) {
     return { redirect: { destination: "/login", permanent: false } };
   }
@@ -60,11 +55,5 @@ export async function getServerSideProps(context: any) {
     { $group: { _id: null, avg: { $avg: "$rating" } } },
   ]).then((res) => res[0]?.avg || 0);
 
-  const monthAgo = new Date();
-  monthAgo.setMonth(monthAgo.getMonth() - 1);
-  const recentReviews = await Customer.countDocuments({
-    createdAt: { $gte: monthAgo },
-  });
-
-  return { props: { totalReviews, avgRating, recentReviews } };
+  return { props: { totalReviews, avgRating } };
 }
