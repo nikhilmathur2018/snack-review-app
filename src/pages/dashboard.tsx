@@ -7,9 +7,11 @@ import Layout from "@/components/Layout";
 export default function Dashboard({
   totalReviews,
   avgRating,
+  recentReviews,
 }: {
   totalReviews: number;
   avgRating: number;
+  recentReviews: number;
 }) {
   return (
     <Layout>
@@ -32,6 +34,14 @@ export default function Dashboard({
               {avgRating.toFixed(1)} / 5
             </p>
           </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Recent Reviews (Last Month)
+            </h2>
+            <p className="text-3xl font-bold text-snack-primary">
+              {recentReviews}
+            </p>
+          </div>
         </div>
       </div>
     </Layout>
@@ -50,5 +60,11 @@ export async function getServerSideProps(context: any) {
     { $group: { _id: null, avg: { $avg: "$rating" } } },
   ]).then((res) => res[0]?.avg || 0);
 
-  return { props: { totalReviews, avgRating } };
+  const monthAgo = new Date();
+  monthAgo.setMonth(monthAgo.getMonth() - 1);
+  const recentReviews = await Customer.countDocuments({
+    createdAt: { $gte: monthAgo },
+  });
+
+  return { props: { totalReviews, avgRating, recentReviews } };
 }
